@@ -1,19 +1,19 @@
 package com.codewise.lock.wrappers;
 
-import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import com.codewise.lock.Mutex;
 import com.codewise.lock.ReentryLock;
-import com.codewise.lock.wrappers.dto.ACTION;
 import com.codewise.lock.wrappers.dto.StatDto;
 
 public class ReentryLockWrapper extends ReentryLock {
 	@Inject
-	private final HashMap<Long, StatDto> statistics ;
+	private final List<StatDto> statistics;
 	
-	public ReentryLockWrapper(HashMap<Long, StatDto> statistics) {
+	public ReentryLockWrapper(List<StatDto> statistics, boolean hashEqualsContract) {
+		super(hashEqualsContract);
 		this.statistics = statistics;
 	}
 
@@ -21,11 +21,9 @@ public class ReentryLockWrapper extends ReentryLock {
 	public Mutex lock(Object key) {
 		Mutex mutex = super.lock(key);
 		
-		statistics.put(
-				System.nanoTime(), 
-				StatDto.builder().action(ACTION.LOCK)
-				.threadName(Thread.currentThread().getName())
-				.build());
+		statistics.add(
+				StatDto.builder().threadName(Thread.currentThread().getName())
+				.currentTime(System.currentTimeMillis()).lock(key).build());
 		
 		return mutex;
 	}

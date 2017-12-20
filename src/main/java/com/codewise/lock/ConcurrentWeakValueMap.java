@@ -2,11 +2,12 @@ package com.codewise.lock;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
+public class ConcurrentWeakValueMap<K, V> extends ConcurrentHashMap<K, V> {
+	private static final long serialVersionUID = -759186495668191195L;
 	private final boolean equalsHashContract;
 	private final ConcurrentHashMap<Key, V> map;
 	private final ReferenceQueue<Object> queue;
