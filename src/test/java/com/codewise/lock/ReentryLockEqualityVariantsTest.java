@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,31 +17,32 @@ import com.codewise.lock.runnable.ReentryLockThread;
 import com.codewise.lock.wrappers.ReentryLockWrapper;
 
 @RunWith(Parameterized.class)
-public class ReentryLockHashEqualsContractTest extends TemplateTest {
+public class ReentryLockEqualityVariantsTest extends TemplateTest {
 
 	@Before
 	public void setUp() {
 		super.setUp();
 		testLocker = new ReentryLockWrapper(statistics, true);
 	}
-	
+
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[][] data = new Object[][] {
 				// different hashCode/equals - independent locks
-				{ "lock1", "lock2", "lock3", "lock4" },
+//				{ "lock1", "lock1", new String("lock1"), new String("lock1") },
 
 				// different hashCode/equals - independent locks
-				{ 1, 2, 3, 4 },
+//				{ 1, 2, 3, 4 },
 
 				// different hashCode/equals - independent locks
-				{ new FullContract(), new FullContract(), new FullContract(), new FullContract() },
+//				{ new FullContract(), new FullContract(), new FullContract(), new FullContract() },
 
 				// same hashCode/ different equals - independent locks
-				{ new HashConstant(), new HashConstant(), new HashConstant(), new HashConstant() },
+//				{ new HashConstant(), new HashConstant(), new HashConstant(), new HashConstant() },
 
-				// different hashCode / same equals - independent locks 
-				// Proof that for locks not fulfilling HashCode-Equals contract Service breaks Equality contract
+				// different hashCode / same equals - independent locks
+				// Proof that for locks not fulfilling HashCode-Equals contract Service breaks
+				// Equality contract
 				{ new EqualsConstant(), new EqualsConstant(), new EqualsConstant(), new EqualsConstant() } };
 
 		return Arrays.asList(data);
@@ -66,6 +68,7 @@ public class ReentryLockHashEqualsContractTest extends TemplateTest {
 		Assertions.assertThat(statistics.stream().filter(dto -> dto.getLock() == lock_4).count()).isEqualTo(1);
 	}
 
+	@Ignore
 	@Test
 	public void reentryLocks_test() throws InterruptedException {
 		// GIVEN

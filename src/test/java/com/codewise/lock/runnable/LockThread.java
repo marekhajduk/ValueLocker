@@ -17,10 +17,10 @@ public class LockThread implements Runnable {
 
 	@Override
 	public void run() {
-
 		Mutex lock = locker.lock(lockValue);
+
 		try {
-			Thread.sleep(100);
+			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			Unchecked.throwChecked(e);
 		}

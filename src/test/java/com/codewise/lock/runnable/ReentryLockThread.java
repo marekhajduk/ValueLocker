@@ -19,14 +19,13 @@ public class ReentryLockThread extends Thread {
 	public void run() {
 
 		Mutex lock = locker.lock(lockValue);
+		System.out.println("first lock");
+		lock = locker.lock(lockValue);
+		System.out.println("second lock");
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			Unchecked.throwChecked(e);
 		}
-
-		locker.lock(lockValue);
-		
-		lock.release();
 	}
 }

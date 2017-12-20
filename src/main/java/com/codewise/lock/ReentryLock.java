@@ -11,31 +11,33 @@ public class ReentryLock implements Locker {
 	public ReentryLock() {
 		this(true);
 	}
-	
+
 	public ReentryLock(boolean equalsHashContract) {
-		this.lockers  = new ConcurrentWeakValueMap<Object, ReentrantLock>(equalsHashContract);
+		this.lockers = new ConcurrentWeakValueMap<Object, ReentrantLock>(equalsHashContract);
 	}
+
+	
+//	public Mutex lockInterruptibly(Object key) {
+//		
+//	}
+//	
+//	public Mutex lock() {
+//		
+//	}
 	
 	public Mutex lock(Object key) {
 		Lock lock= lockers.compute(key, (k, value) -> {
 			if (null == value) {
-				ReentrantLock s = new ReentrantLock();
-				try {
-					s.lockInterruptibly();
-				} catch (InterruptedException e) {
-					Unchecked.throwChecked(e);
-				}
-				return s;
+				return new ReentrantLock();
 			} else {
-				try {
-					value.lockInterruptibly();
-				} catch (InterruptedException e) {
-					Unchecked.throwChecked(e);
-				}
 				return value;
+			}});
+			
+			try {
+				lock.lockInterruptibly();
+			} catch (InterruptedException e) {
+				Unchecked.throwChecked(e);
 			}
-		});
-		
 		return new LockerMutex(key, lock);
 	}
 

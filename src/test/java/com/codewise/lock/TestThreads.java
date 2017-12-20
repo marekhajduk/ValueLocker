@@ -9,25 +9,16 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 public class TestThreads {
 	public static void main(String[] args) {
 		
-		final ThreadFactory threadFactory = new ThreadFactoryBuilder()
-				.setNameFormat("ORDERS-%d")
-				.build();
+	String str = new String("dla");
+	String str2 = new String("dla");
+	String str3 = new String("dla");
+	Integer i = new Integer(200);
+	Integer i2 = new Integer(200);
+	
 		
-		final ExecutorService executorService = Executors.newFixedThreadPool(10);
-		
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		executorService.execute(new TestTh1());
-		
-		
+		System.out.println(i.hashCode());
+		System.out.println(i2.hashCode());
+		System.out.println(str3.hashCode());
 		
 	}
 }
