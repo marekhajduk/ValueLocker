@@ -2,6 +2,8 @@ package com.codewise.lock;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
@@ -13,17 +15,18 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.codewise.lock.runnable.LockThread;
 import com.codewise.lock.runnable.ReentryLockThread;
+import com.codewise.lock.templates.Template;
 import com.codewise.lock.wrappers.ReentryLockWrapper;
 
 @RunWith(Parameterized.class)
-public class ReentryLockHashEqualsContractTest extends TemplateTest {
+public class ReentryLockHashEqualsContractTest extends Template {
 
 	@Before
 	public void setUp() {
 		super.setUp();
-		testLocker = new ReentryLockWrapper(statistics, true);
+		testLocker = new ReentryLockWrapper(statistics, false, true);
 	}
-	
+
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[][] data = new Object[][] {
@@ -39,8 +42,9 @@ public class ReentryLockHashEqualsContractTest extends TemplateTest {
 				// same hashCode/ different equals - independent locks
 				{ new HashConstant(), new HashConstant(), new HashConstant(), new HashConstant() },
 
-				// different hashCode / same equals - independent locks 
-				// Proof that for locks not fulfilling HashCode-Equals contract Service breaks Equality contract
+				// different hashCode / same equals - independent locks
+				// Proof that for locks not fulfilling HashCode-Equals contract Service breaks
+				// Equality contract
 				{ new EqualsConstant(), new EqualsConstant(), new EqualsConstant(), new EqualsConstant() } };
 
 		return Arrays.asList(data);
@@ -49,16 +53,17 @@ public class ReentryLockHashEqualsContractTest extends TemplateTest {
 	@Test
 	public void independentLocks_test() throws InterruptedException {
 		// GIVEN
-		runnableList.add(new LockThread(testLocker, lock_1));
-		runnableList.add(new LockThread(testLocker, lock_2));
-		runnableList.add(new LockThread(testLocker, lock_3));
-		runnableList.add(new LockThread(testLocker, lock_4));
+		callableList.add(new LockThread(testLocker, lock_1));
+		callableList.add(new LockThread(testLocker, lock_2));
+		callableList.add(new LockThread(testLocker, lock_3));
+		callableList.add(new LockThread(testLocker, lock_4));
 
 		// WHEN
-		runnableList.stream().forEach(x -> executor.execute(x));
-		executor.shutdown();
-		executor.awaitTermination(10, TimeUnit.SECONDS);
+		List<Future<Boolean>> invokeAll = executor.invokeAll(callableList);
 
+		executor.shutdown();
+		executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+		
 		// THEN
 		Assertions.assertThat(statistics.stream().filter(dto -> dto.getLock() == lock_1).count()).isEqualTo(1);
 		Assertions.assertThat(statistics.stream().filter(dto -> dto.getLock() == lock_2).count()).isEqualTo(1);
@@ -69,16 +74,17 @@ public class ReentryLockHashEqualsContractTest extends TemplateTest {
 	@Test
 	public void reentryLocks_test() throws InterruptedException {
 		// GIVEN
-		runnableList.add(new ReentryLockThread(testLocker, lock_1));
-		runnableList.add(new ReentryLockThread(testLocker, lock_2));
-		runnableList.add(new ReentryLockThread(testLocker, lock_3));
-		runnableList.add(new ReentryLockThread(testLocker, lock_4));
+		callableList.add(new ReentryLockThread(testLocker, lock_1));
+		callableList.add(new ReentryLockThread(testLocker, lock_2));
+		callableList.add(new ReentryLockThread(testLocker, lock_3));
+		callableList.add(new ReentryLockThread(testLocker, lock_4));
 
 		// WHEN
-		runnableList.stream().forEach(x -> executor.execute(x));
-		executor.shutdown();
-		executor.awaitTermination(10, TimeUnit.SECONDS);
+		List<Future<Boolean>> invokeAll = executor.invokeAll(callableList);
 
+		executor.shutdown();
+		executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+		
 		// THEN
 		Assertions.assertThat(statistics.stream().filter(dto -> dto.getLock() == lock_1).count()).isEqualTo(2);
 		Assertions.assertThat(statistics.stream().filter(dto -> dto.getLock() == lock_2).count()).isEqualTo(2);

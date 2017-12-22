@@ -8,6 +8,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@ToString
+@EqualsAndHashCode
 public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 	private static final long serialVersionUID = -759186495668191195L;
 	private final boolean equalsHashContract;
@@ -20,8 +25,8 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 
 	public ConcurrentWeakValueMap(boolean equalsHashContract) {
 		this.equalsHashContract = equalsHashContract;
-		this.map = new ConcurrentHashMap<Key, V>();
-		this.queue = new ReferenceQueue<Object>();
+		this.map = new ConcurrentHashMap<>();
+		this.queue = new ReferenceQueue<>();
 	}
 
 	@Override
@@ -48,15 +53,17 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 
 	@Override
 	public V get(Object key) {
-		return this.map.get(new Key(key, this.queue, equalsHashContract));
+		return this.map.get(decorateKey(key));
 	}
 
-	// TODO - add way of comparable objects -> cause O(logn) complexity on hascode
-	// conflicts
+	private Key decorateKey(Object key) {
+		return new Key(key, this.queue, equalsHashContract);
+	}
+
 	@Override
 	public V put(K key, V value) {
 		releaseUnreferencedData();
-		Key kk = new Key(key, this.queue, equalsHashContract);
+		Key kk = decorateKey(key);
 		V newValue = this.map.putIfAbsent(kk, value);
 		return (newValue == null) ? value : newValue;
 	}
@@ -69,7 +76,6 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 
 	private final void releaseUnreferencedData() {
 		Key key = null;
-
 		while ((key = (Key) this.queue.poll()) != null) {
 			this.map.remove(key);
 		}
@@ -80,7 +86,7 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 		throw new UnsupportedOperationException();
 	}
 
-	private final static class Key extends WeakReference<Object> {
+	private static final  class Key extends WeakReference<Object> {
 		private final int hashCode;
 
 		public Key(Object key, ReferenceQueue<Object> queue, boolean equalsHashContract) {
@@ -100,7 +106,7 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 			}
 			if (object instanceof Key) {
 				Key candidate = (Key) object;
-				Object current = get();
+				Object current = this.get();
 				return (current != null && current.equals(candidate.get()));
 			}
 			return false;
