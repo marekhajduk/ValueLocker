@@ -41,8 +41,7 @@ public class ReentryLockFairnesstTest {
 	private AtomicInteger atomicValue = new AtomicInteger();
 
 	private Callable<Boolean> call = () -> {
-		Mutex lock = null;
-		lock = locker.lock(lock_1);
+		Mutex lock = locker.lock(lock_1);
 		MILLISECONDS.sleep(50);
 		lock.release();
 		return true;
@@ -61,11 +60,11 @@ public class ReentryLockFairnesstTest {
 
 	@Parameters(name = "{index}-LOCK: [{0}] - HASH/EQUALS Support: [{1}], FAIRNESS: [{2}]")
 	public static Collection<Object[]> data() {
-		Object[][] data = new Object[][] { { new String("lock"), false, true }, { new String("lock"), true, true} };
+		Object[][] data = new Object[][] { { new String("lock"), false, true }, { new String("lock"), true, true } };
 		return Arrays.asList(data);
 	}
 
-	@Test(timeout = 10000)
+	@Test(timeout = 1000)
 	public void fairnessLock_test() throws InterruptedException {
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
@@ -121,28 +120,28 @@ public class ReentryLockFairnesstTest {
 				atomicValue.compareAndExchange(5, 6);
 			}
 		});
-		
+
 		Futures.addCallback(future7, new TestFutureCallback<Boolean>() {
 			@Override
 			public void onSuccess(Boolean result) {
 				atomicValue.compareAndExchange(6, 7);
 			}
 		});
-		
+
 		Futures.addCallback(future8, new TestFutureCallback<Boolean>() {
 			@Override
 			public void onSuccess(Boolean result) {
 				atomicValue.compareAndExchange(7, 8);
 			}
 		});
-		
+
 		Futures.addCallback(future9, new TestFutureCallback<Boolean>() {
 			@Override
 			public void onSuccess(Boolean result) {
 				atomicValue.compareAndExchange(8, 9);
 			}
 		});
-		
+
 		Futures.addCallback(future10, new TestFutureCallback<Boolean>() {
 			@Override
 			public void onSuccess(Boolean result) {

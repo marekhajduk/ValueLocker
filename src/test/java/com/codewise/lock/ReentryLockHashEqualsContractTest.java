@@ -66,8 +66,7 @@ public class ReentryLockHashEqualsContractTest {
 	};
 
 	private Callable<Boolean> call = () -> {
-		Mutex lock = null;
-		lock = locker.lock(sup.get());
+		Mutex lock = locker.lock(sup.get());
 		MILLISECONDS.sleep(100);
 		lock.release();
 		return true;
@@ -102,7 +101,6 @@ public class ReentryLockHashEqualsContractTest {
 		with().pollDelay(100, TimeUnit.MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
 				.atLeast(100, MILLISECONDS).atMost(150, MILLISECONDS)
 				.until(() -> future.isDone() && future2.isDone() && future3.isDone());
-
 	}
 
 	@NoArgsConstructor

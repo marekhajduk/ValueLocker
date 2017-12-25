@@ -65,8 +65,7 @@ public class ReentryLockHashEqualsBrokenTest {
 	};
 
 	private Callable<Boolean> call = () -> {
-		Mutex lock = null;
-		lock = locker.lock(sup.get());
+		Mutex lock = locker.lock(sup.get());
 		MILLISECONDS.sleep(100);
 		lock.release();
 		return true;
@@ -76,15 +75,15 @@ public class ReentryLockHashEqualsBrokenTest {
 	public static Collection<Object[]> data() {
 		Object[][] data = new Object[][] {
 				// different hashCode / same equals - same lock
-				{new EqualsConstant(), new EqualsConstant(), new EqualsConstant() } };
+				{ new EqualsConstant(), new EqualsConstant(), new EqualsConstant() } };
 		return Arrays.asList(data);
 	}
 
 	@Test(timeout = 500)
 	public void supportFairAndBreakHashCodeContract_test() throws InterruptedException {
-		//GIVEN
+		// GIVEN
 		locker = new ReentryLocker(true, false);
-	
+
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
 		ListenableFuture<Boolean> future2 = executor.submit(call);
@@ -98,25 +97,25 @@ public class ReentryLockHashEqualsBrokenTest {
 
 	@Test(timeout = 500)
 	public void UnFairAndBreakHashCodeContract_test() throws InterruptedException {
-		//GIVEN
+		// GIVEN
 		locker = new ReentryLocker(false, false);
-		
+
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
 		ListenableFuture<Boolean> future2 = executor.submit(call);
 		ListenableFuture<Boolean> future3 = executor.submit(call);
-		
+
 		// THEN
 		with().pollDelay(Duration.TWO_HUNDRED_MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
-		.atLeast(250, MILLISECONDS).atMost(350, MILLISECONDS)
-		.until(() -> future.isDone() && future2.isDone() && future3.isDone());
+				.atLeast(250, MILLISECONDS).atMost(350, MILLISECONDS)
+				.until(() -> future.isDone() && future2.isDone() && future3.isDone());
 	}
-	
+
 	@Test(timeout = 500)
 	public void supportFairAndHashCodeContract_test() throws InterruptedException {
-		//GIVEN
+		// GIVEN
 		locker = new ReentryLocker(true, true);
-	
+
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
 		ListenableFuture<Boolean> future2 = executor.submit(call);
@@ -126,13 +125,13 @@ public class ReentryLockHashEqualsBrokenTest {
 		with().pollDelay(80, TimeUnit.MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
 				.atLeast(90, MILLISECONDS).atMost(150, MILLISECONDS)
 				.until(() -> future.isDone() && future2.isDone() && future3.isDone());
-	}	
+	}
 
 	@Test(timeout = 500)
 	public void UnFairAndHashCodeContract_test() throws InterruptedException {
-		//GIVEN
+		// GIVEN
 		locker = new ReentryLocker(false, true);
-	
+
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
 		ListenableFuture<Boolean> future2 = executor.submit(call);
@@ -142,8 +141,8 @@ public class ReentryLockHashEqualsBrokenTest {
 		with().pollDelay(80, TimeUnit.MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
 				.atLeast(90, MILLISECONDS).atMost(150, MILLISECONDS)
 				.until(() -> future.isDone() && future2.isDone() && future3.isDone());
-	}	
-	
+	}
+
 	@NoArgsConstructor
 	protected final static class EqualsConstant {
 		@Override
@@ -152,50 +151,3 @@ public class ReentryLockHashEqualsBrokenTest {
 		}
 	}
 }
-// @Before
-// public void setUp() {
-// super.setUp();
-// testLocker = new ReentryLockWrapper(statistics, false, false);
-// }
-//
-// @Parameters
-// public static Collection<Object[]> data() {
-// Object[][] data = new Object[][] {
-// // same hashCode/equals - same lock
-// { "lock1", "lock1", new String("lock1"), new String("lock1") },
-//
-// // same hashCode/equals - same lock
-// { 1, 1, new Integer(1), Integer.parseInt("1") },
-//
-// // different hashCode / same equals - same lock
-// // Proof that for locks not fulfilling HashCode-Equals contract Service
-// breaks
-// // Equality contract
-// { new EqualsConstant(), new EqualsConstant(), new EqualsConstant(), new
-// EqualsConstant() } };
-//
-// return Arrays.asList(data);
-// }
-//
-// @Test
-// public void sameEqualsDifferentHashCode_test() throws InterruptedException {
-// // GIVEN
-// callableList.add(new LockThread(testLocker, lock_1));
-// callableList.add(new LockThread(testLocker, lock_2));
-// callableList.add(new LockThread(testLocker, lock_3));
-// callableList.add(new LockThread(testLocker, lock_4));
-//
-// // WHEN
-// List<Future<Boolean>> invokeAll = executor.invokeAll(callableList);
-// executor.shutdown();
-// executor.awaitTermination(500, TimeUnit.MILLISECONDS);
-//
-// // THEN
-// assertThat(statistics.stream().filter(dto ->
-// dto.getLock().equals(lock_1)).count()).isEqualTo(4);
-// long[] lockTimes = statistics.stream().mapToLong(x ->
-// x.getCurrentTime()).toArray();
-// assertThat(lockTimes[lockTimes.length - 1] - lockTimes[0]).isCloseTo(150l,
-// within(20l));
-// }
-// }

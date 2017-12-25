@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class ReentryLocker implements Locker {
 	private final ConcurrentWeakValueMap<Object, ReentrantLock> lockers;
 	private boolean fair;
@@ -60,5 +62,9 @@ public class ReentryLocker implements Locker {
 	@Override
 	public Mutex tryLock(long timeout, TimeUnit unit) {
 		throw new UnsupportedOperationException();
+	}	
+	
+	public int lockerSize() {
+		return lockers.size();
 	}
 }
