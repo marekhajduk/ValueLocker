@@ -4,18 +4,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ReentryLock implements Locker {
+public class ReentryLocker implements Locker {
 	private final ConcurrentWeakValueMap<Object, ReentrantLock> lockers;
 	private boolean fair;
 
-	public ReentryLock() {
+	public ReentryLocker() {
 		this(false,true);
 	}
-	public ReentryLock(boolean fair) {
-		this(true, true);
+	public ReentryLocker(boolean fair) {
+		this(fair, true);
 	}
 	
-	public ReentryLock(boolean fair, boolean equalsHashContract) {
+	public ReentryLocker(boolean fair, boolean equalsHashContract) {
 		this.fair = fair;
 		this.lockers = new ConcurrentWeakValueMap<>(equalsHashContract);
 	}
