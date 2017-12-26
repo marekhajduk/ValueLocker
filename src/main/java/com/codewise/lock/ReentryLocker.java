@@ -4,8 +4,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class ReentryLocker implements Locker {
 	private final ConcurrentWeakValueMap<Object, ReentrantLock> lockers;
 	private boolean fair;
@@ -25,15 +23,15 @@ public class ReentryLocker implements Locker {
 	@Override
 	public Mutex lockInterruptibly(Object key) throws InterruptedException {
 		Lock lock = lockValue(key);
-		reservedInterruptibly(lock);
-		return new LockMutex(key, lock);
+		lock.lockInterruptibly();
+		return new LockerMutex(key, lock);
 	}
 
 	@Override
 	public Mutex lock(Object key) {
 		Lock lock = lockValue(key);
-		reserved(lock);
-		return new LockMutex(key, lock);
+		lock.lock();
+		return new LockerMutex(key, lock);
 	}
 
 	private Lock lockValue(Object key) {
@@ -46,22 +44,18 @@ public class ReentryLocker implements Locker {
 		});
 	}
 
-	private void reserved(Lock lock) {
-		lock.lock();
-	}
-
-	private void reservedInterruptibly(Lock lock) throws InterruptedException  {
-			lock.lockInterruptibly();
+	@Override
+	public Mutex tryLock(Object key) {
+		Lock lock = lockValue(key);
+		boolean taken = lock.tryLock();
+		return new LockerMutex(key, lock, taken);
 	}
 	
 	@Override
-	public Mutex tryLock() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public Mutex tryLock(long timeout, TimeUnit unit) {
-		throw new UnsupportedOperationException();
+	public Mutex tryLock(Object key, long timeout, TimeUnit unit) throws InterruptedException {
+		Lock lock = lockValue(key);
+		boolean taken = lock.tryLock(timeout, unit);
+		return new LockerMutex(key, lock, taken);
 	}	
 	
 	public int lockerSize() {

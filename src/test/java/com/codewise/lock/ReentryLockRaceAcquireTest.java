@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 @RunWith(Parameterized.class)
@@ -33,20 +33,20 @@ public class ReentryLockRaceAcquireTest {
 	public Object lockFairness;
 
 	private Locker locker;
-	private ListeningScheduledExecutorService executor;
+	private ListeningExecutorService executor;
 	private CyclicBarrier barrier = new CyclicBarrier(3);
 
 	private Callable<Boolean> call = () -> {
 		barrier.await();
 		Mutex lock = locker.lock(lock_1);
-		MILLISECONDS.sleep(100);
+		MILLISECONDS.sleep(50);
 		lock.release();
 		return true;
 	};
 
 	@Before
 	public void setUp() {
-		executor = MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(10));
+		executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
 		locker = new ReentryLocker((Boolean) lockFairness, (Boolean) hashEqualsSupport);
 	}
 
@@ -62,7 +62,7 @@ public class ReentryLockRaceAcquireTest {
 		return Arrays.asList(data);
 	}
 
-	@Test(timeout = 1000)
+	@Test(timeout = 500)
 	public void fairnessLock_test() throws InterruptedException {
 		// WHEN
 		ListenableFuture<Boolean> future = executor.submit(call);
@@ -70,8 +70,8 @@ public class ReentryLockRaceAcquireTest {
 		ListenableFuture<Boolean> future3 = executor.submit(call);
 
 		// THEN
-		with().pollDelay(TWO_HUNDRED_MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
-				.atLeast(250, MILLISECONDS).atMost(350, MILLISECONDS)
+		with().pollDelay(100, MILLISECONDS).and().with().pollInterval(ONE_MILLISECOND).await()
+				.atLeast(100, MILLISECONDS).atMost(TWO_HUNDRED_MILLISECONDS)
 				.until(() -> future.isDone() && future2.isDone() && future3.isDone());
 	}
 }

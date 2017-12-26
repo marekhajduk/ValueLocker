@@ -11,13 +11,14 @@ public class ReentryLockWeakReferenceRemovedTest {
 
 	@Test
 	public void unusedLockObjectRemovedFromServicetest() throws InterruptedException {
-
+		//GIVEN
 		IntStream.rangeClosed(1, 10).forEach(x -> {
 			locker.lock(new Object()).release();
 		});
 
 		Assertions.assertThat(locker.lockerSize()).isEqualTo(10);
 
+		//WHEN
 		IntStream.rangeClosed(1, 3).forEach(x -> {
 			System.gc();
 			try {
@@ -25,6 +26,8 @@ public class ReentryLockWeakReferenceRemovedTest {
 			} catch (InterruptedException e) {
 			}
 		});
+		
+		//THEN
 		Assertions.assertThat(locker.lockerSize()).isEqualTo(0);
 	}
 }
