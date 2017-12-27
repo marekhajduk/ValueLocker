@@ -1,16 +1,17 @@
 package com.codewise.lock;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.assertj.core.api.Assertions;
-import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,19 +61,19 @@ public class ReentryLockInterruptedTest {
 			} catch (InterruptedException e1) {
 				atomicValue.incrementAndGet();
 			}
-			TimeUnit.MILLISECONDS.sleep(100);
+			MILLISECONDS.sleep(100);
 
 			lock.release();
 			return true;
 		};
 		// WHEN
 		Future<Boolean> future = executor.submit(call);
-		Future<Boolean> future2 = executor.schedule(call, 5, TimeUnit.MILLISECONDS);
-		executor.schedule(() -> future2.cancel(true), 40, TimeUnit.MILLISECONDS);
+		Future<Boolean> future2 = executor.schedule(call, 5, MILLISECONDS);
+		executor.schedule(() -> future2.cancel(true), 40, MILLISECONDS);
 
 		// THEN
-		Awaitility.await().until(() -> future.isDone() && future2.isDone());
-		Assertions.assertThat(atomicValue.get()).isEqualTo(1);
+		await().until(() -> future.isDone() && future2.isDone());
+		assertThat(atomicValue.get()).isEqualTo(1);
 	}
 
 	@Test(timeout = 300)
@@ -85,18 +86,18 @@ public class ReentryLockInterruptedTest {
 			} catch (Throwable e1) {
 				atomicValue.incrementAndGet();
 			}
-			TimeUnit.MILLISECONDS.sleep(100);
+			MILLISECONDS.sleep(100);
 
 			lock.release();
 			return true;
 		};
 		// WHEN
 		Future<Boolean> future = executor.submit(call);
-		Future<Boolean> future2 = executor.schedule(call, 5, TimeUnit.MILLISECONDS);
-		executor.schedule(() -> future2.cancel(true), 40, TimeUnit.MILLISECONDS);
+		Future<Boolean> future2 = executor.schedule(call, 5, MILLISECONDS);
+		executor.schedule(() -> future2.cancel(true), 40, MILLISECONDS);
 
 		// THEN
-		Awaitility.await().until(() -> future.isDone() && future2.isDone());
-		Assertions.assertThat(atomicValue.get()).isEqualTo(0);
+		await().until(() -> future.isDone() && future2.isDone());
+		assertThat(atomicValue.get()).isEqualTo(0);
 	}
 }

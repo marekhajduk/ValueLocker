@@ -4,7 +4,10 @@ Object's value is identified by object's equals() implementation.
 
 ```java
 public interface Locker {
-   Mutex lock(Object obj);
+	Mutex lock(Object obj);
+	Mutex lockInterruptibly(Object obj) throws InterruptedException;
+	Mutex tryLock(Object obj);
+	Mutex tryLock(Object obj, long timeout, TimeUnit unit) throws InterruptedException;
 }
 
 public interface Mutex {
