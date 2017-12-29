@@ -34,7 +34,6 @@ Lock service background structure is combination of WeakReferenceQueue and Concu
 | Lock object  			| O(n)  |
 | ---------------------	| -----:|
 | Hash/Equals contract  |  O(1) |
-| Comparable (H/E break)|O(logn)|
 | Other cases    		|  O(n) |
 
 
