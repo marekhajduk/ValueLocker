@@ -1,7 +1,7 @@
 package com.codewise.lock;
 
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.AbstractMap;
 import java.util.Objects;
 import java.util.Set;
@@ -13,17 +13,17 @@ import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
+public class ConcurrentSoftValueMap<K, V> extends AbstractMap<K, V> {
 	private static final long serialVersionUID = -759186495668191195L;
 	private final boolean equalsHashContract;
 	private final ConcurrentHashMap<Key, V> map;
 	private final ReferenceQueue<Object> queue;
 
-	public ConcurrentWeakValueMap() {
+	public ConcurrentSoftValueMap() {
 		this(true);
 	}
 
-	public ConcurrentWeakValueMap(boolean equalsHashContract) {
+	public ConcurrentSoftValueMap(boolean equalsHashContract) {
 		this.equalsHashContract = equalsHashContract;
 		this.map = new ConcurrentHashMap<>();
 		this.queue = new ReferenceQueue<>();
@@ -86,7 +86,7 @@ public class ConcurrentWeakValueMap<K, V> extends AbstractMap<K, V> {
 		throw new UnsupportedOperationException();
 	}
 
-	private static final  class Key extends WeakReference<Object> {
+	private static final class Key extends SoftReference<Object> {
 		private final int hashCode;
 
 		public Key(Object key, ReferenceQueue<Object> queue, boolean equalsHashContract) {

@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ReentryLocker implements Locker {
-	private final ConcurrentWeakValueMap<Object, ReentrantLock> lockers;
+	private final ConcurrentSoftValueMap<Object, ReentrantLock> lockers;
 	private boolean fair;
 
 	public ReentryLocker() {
@@ -17,7 +17,7 @@ public class ReentryLocker implements Locker {
 	
 	public ReentryLocker(boolean fair, boolean equalsHashContract) {
 		this.fair = fair;
-		this.lockers = new ConcurrentWeakValueMap<>(equalsHashContract);
+		this.lockers = new ConcurrentSoftValueMap<>(equalsHashContract);
 	}
 
 	@Override

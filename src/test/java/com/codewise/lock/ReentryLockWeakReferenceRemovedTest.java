@@ -1,15 +1,17 @@
 package com.codewise.lock;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ReentryLockWeakReferenceRemovedTest {
 	private ReentryLocker locker = new ReentryLocker();
 
-	@Test
+	@Test @Ignore
 	public void unusedLockObjectRemovedFromServicetest() throws InterruptedException {
 		//GIVEN
 		IntStream.rangeClosed(1, 10).forEach(x -> {

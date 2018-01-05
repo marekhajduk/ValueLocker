@@ -25,8 +25,8 @@ thread B: valueLocker.lock("A");
 
 # Principles #
 
-Lock service background structure is combination of WeakReferenceQueue and ConcurrentHashMap
- * providing weak keys
+Lock service background structure is combination of SoftReferenceQueue and ConcurrentHashMap
+ * providing soft keys
  * non-blocking access
  
  Computational complexity - access to Lock element
